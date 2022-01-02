@@ -4,6 +4,7 @@ from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 from CFBPSO import CfbPso
+from FCPSO import FcPso
 from InteriaWeightPSO import InteriaWeightPso
 
 from dimensionality import Dimensionality
@@ -30,7 +31,7 @@ def tolerant_mean(arrs):
 
 
 def main():
-
+   
     labels = [o.label for o in boundary_conditions]
    
     for eval_function in functions:
@@ -56,7 +57,9 @@ def main():
                                     #  boundary_condition, cognitive_param, social_param)
                     # swarm = InteriaWeightPso(dimension, eval_function,
                     #                  boundary_condition, cognitive_param, social_param)
-                    swarm = CfbPso(dimension, eval_function,
+                    # swarm = CfbPso(dimension, eval_function,
+                    #                  boundary_condition, cognitive_param, social_param)
+                    swarm = FcPso(dimension, eval_function,
                                      boundary_condition, cognitive_param, social_param)
                     swarm.optimize()
                     gbest_runs.append(swarm.gbest)
@@ -67,7 +70,7 @@ def main():
                 print('Max: {0} | Min: {1} | Mean: {2} | Stdev: {3} | Iteration: {4}'.format(
                     max(swarm.gbest), min(swarm.gbest), mean(swarm.gbest), stdev(swarm.gbest), swarm.iteration))
             ax.legend(labels, loc="upper right")
-            plt.savefig('{0}_{1}_{2}.png'.format(swarm.__class__.__name__,
+            plt.savefig('results/{0}_{1}_{2}.png'.format(swarm.__class__.__name__,
                 eval_function.__class__.__name__, dimension.dimensions))
 
 

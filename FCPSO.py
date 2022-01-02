@@ -1,6 +1,8 @@
 import random
 import numpy as np
+import math
 from numpy.linalg import cond
+from numpy.random.mtrand import rand
 from boundary_conditions import BoundaryCondition
 from dimensionality import Dimensionality
 from fitness_functions import FitnessFunction
@@ -8,7 +10,7 @@ from fitness_functions import FitnessFunction
 from particle import Particle
 
 
-class InteriaWeightPso:
+class FcPso:
 
     def __init__(self, dimensionality: Dimensionality, function: FitnessFunction, boundary_condition: BoundaryCondition, c1, c2):
         self.bounds = function.bounds
@@ -19,6 +21,7 @@ class InteriaWeightPso:
         self.r_norm = 0
         self.c1 = c1
         self.c2 = c2
+        self.c3 = 2.0
         self.w = 0.0
         self.w_max = 0.9
         self.w_min = 0.4
@@ -40,8 +43,9 @@ class InteriaWeightPso:
 
     def optimize(self):
         for _ in range(self.dimensionality.max_iterations):
-            self.w = self.w_max - (((self.w_max - self.w_min) /
-                                    self.dimensionality.max_iterations) * (self.iteration))
+            self.w = self.w_max - \
+                (((self.w_max - self.w_min) /
+                 self.dimensionality.max_iterations) * (self.iteration))
             self.iteration += 1
             for particle in self.swarm_particle:
                 skip_evaluation = self.update_particle(particle)
@@ -56,12 +60,15 @@ class InteriaWeightPso:
     def update_particle(self,  particle: Particle):
         r1 = random.random()
         r2 = random.random()
+        r3 = random.random()
 
         cognitive = self.c1 * r1 * \
             (particle.pbest_position - particle.position)
         social = self.c2 * r2 * (self.gbest_position - particle.position)
+        pmd = np.mean(particle.position)
+        third = self.c3 * r3 * (pmd - particle.position)
         np.multiply(particle.velocity, self.w)
-        particle.velocity = particle.velocity + cognitive + social
+        particle.velocity = particle.velocity + cognitive + social + third
 
         # Velocity clamping
         for i in range(self.dimensionality.dimensions):
