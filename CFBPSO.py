@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import math
 from numpy.linalg import cond
 from boundary_conditions import BoundaryCondition
 from dimensionality import Dimensionality
@@ -8,7 +9,7 @@ from fitness_functions import FitnessFunction
 from particle import Particle
 
 
-class InteriaWeightPso:
+class CfbPso:
 
     def __init__(self, dimensionality: Dimensionality, function: FitnessFunction, boundary_condition: BoundaryCondition, c1, c2):
         self.bounds = function.bounds
@@ -19,9 +20,8 @@ class InteriaWeightPso:
         self.r_norm = 0
         self.c1 = c1
         self.c2 = c2
-        self.w = 0.0
-        self.w_max = 0.9
-        self.w_min = 0.4
+        self.fi = self.c1 + self.c2
+        self.K = self.calculate_K()
         self.boundary_condition = boundary_condition.calculate
         self.max_velocity = 0.5*(function.bounds[1]-function.bounds[0])
 
@@ -40,9 +40,7 @@ class InteriaWeightPso:
 
     def optimize(self):
         for _ in range(self.dimensionality.max_iterations):
-            self.w = self.w_max - (((self.w_max - self.w_min) /
-                               self.dimensionality.max_iterations) * (self.iteration))
-            self.iteration += 1            
+            self.iteration += 1
             for particle in self.swarm_particle:
                 skip_evaluation = self.update_particle(particle)
                 if not skip_evaluation:
@@ -60,8 +58,8 @@ class InteriaWeightPso:
         cognitive = self.c1 * r1 * \
             (particle.pbest_position - particle.position)
         social = self.c2 * r2 * (self.gbest_position - particle.position)
-        np.multiply(particle.velocity, self.w)
         particle.velocity = particle.velocity + cognitive + social
+        np.multiply(particle.velocity, self.K)
 
         # Velocity clamping
         for i in range(self.dimensionality.dimensions):
@@ -103,4 +101,10 @@ class InteriaWeightPso:
                 result = dist
 
         result = result / self.diameter
+        return result
+
+    def calculate_K(self):
+        square_root = math.sqrt(self.fi ** 2 - (4.0 * self.fi))
+        denominator = 2.0 - self.fi - square_root
+        result = 2.0 / denominator
         return result
