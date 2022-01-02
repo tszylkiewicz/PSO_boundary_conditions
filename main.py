@@ -3,6 +3,7 @@ from statistics import stdev, mean
 from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
+from CFBPSO import CfbPso
 from InteriaWeightPSO import InteriaWeightPso
 
 from dimensionality import Dimensionality
@@ -15,7 +16,7 @@ boundary_conditions = [Absorbing(), Reflecting(), Dumping(), Teleport()]
 dimensions = [Dimensionality(3, 30, 200)]
 
 cognitive_param = 2.0
-social_param = 2.0
+social_param = 2.1
 
 runs = 50
 
@@ -52,14 +53,16 @@ def main():
                 gbest_runs = []
                 for _ in tqdm(range(runs)):
                     # swarm = BasicPso(dimension, eval_function,
+                                    #  boundary_condition, cognitive_param, social_param)
+                    # swarm = InteriaWeightPso(dimension, eval_function,
                     #                  boundary_condition, cognitive_param, social_param)
-                    swarm = InteriaWeightPso(dimension, eval_function,
+                    swarm = CfbPso(dimension, eval_function,
                                      boundary_condition, cognitive_param, social_param)
                     swarm.optimize()
                     gbest_runs.append(swarm.gbest)
 
                 y, error = tolerant_mean(gbest_runs)
-                ax.plot(np.arange(swarm.iteration), y,
+                ax.plot(np.arange(len(y)), y,
                         color=boundary_condition.color, marker=boundary_condition.marker, label=boundary_condition.label)
                 print('Max: {0} | Min: {1} | Mean: {2} | Stdev: {3} | Iteration: {4}'.format(
                     max(swarm.gbest), min(swarm.gbest), mean(swarm.gbest), stdev(swarm.gbest), swarm.iteration))
