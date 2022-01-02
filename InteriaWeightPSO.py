@@ -19,7 +19,9 @@ class InteriaWeightPso:
         self.r_norm = 0
         self.c1 = c1
         self.c2 = c2
-        self.w = 1.0
+        self.w = 0.0
+        self.w_max = 0.9
+        self.w_min = 0.4
         self.boundary_condition = boundary_condition.calculate
         self.max_velocity = 0.5*(function.bounds[1]-function.bounds[0])
 
@@ -38,7 +40,9 @@ class InteriaWeightPso:
 
     def optimize(self):
         for _ in range(self.dimensionality.max_iterations):
-            self.iteration += 1
+            self.w = self.w_max - (((self.w_max - self.w_min) /
+                               self.dimensionality.max_iterations) * (self.iteration))
+            self.iteration += 1            
             for particle in self.swarm_particle:
                 skip_evaluation = self.update_particle(particle)
                 if not skip_evaluation:
@@ -52,15 +56,14 @@ class InteriaWeightPso:
     def update_particle(self,  particle: Particle):
         r1 = random.random()
         r2 = random.random()
-        self.w = (self.c1 * r1) + (self.c2 * r2)
 
         cognitive = self.c1 * r1 * \
             (particle.pbest_position - particle.position)
         social = self.c2 * r2 * (self.gbest_position - particle.position)
+        test = np.multiply(particle.velocity, self.w)
+        particle.velocity = test + cognitive + social
 
-        particle.velocity = (self.w * particle.velocity) + cognitive + social
-
-        #Velocity clamping 
+        # Velocity clamping
         for i in range(self.dimensionality.dimensions):
             if particle.velocity[i] >= self.max_velocity:
                 particle.velocity[i] = self.max_velocity
