@@ -1,78 +1,175 @@
 import random
 
-
-def absorbing(position, velocity, bounds):
-    for i in range(len(position)):
-        if position[i] < bounds[0]:
-            position[i] = bounds[0]
-            velocity[i] = 0
-        if position[i] > bounds[1]:
-            position[i] = bounds[1]
-            velocity[i] = 0
-
-    return position, velocity, False
+from abc import (ABC, abstractmethod)
 
 
-def reflecting(position, velocity, bounds):
-    for i in range(len(position)):
-        if position[i] < bounds[0]:
-            position[i] = bounds[0]
-            velocity[i] *= -1.0
-        if position[i] > bounds[1]:
-            position[i] = bounds[1]
-            velocity[i] *= -1.0
+class BoundaryCondition(ABC):
 
-    return position, velocity, False
+    @property
+    @abstractmethod
+    def label(self):
+        pass
 
+    @property
+    @abstractmethod
+    def color(self):
+        pass
 
-def dumping(position, velocity, bounds):
-    for i in range(len(position)):
-        if position[i] < bounds[0]:
-            position[i] = bounds[0]
-            velocity[i] *= -random.random()
-        if position[i] > bounds[1]:
-            position[i] = bounds[1]
-            velocity[i] *= -random.random()
+    @property
+    @abstractmethod
+    def marker(self):
+        pass
 
-    return position, velocity, False
+    @abstractmethod
+    def calculate(self, position, velocity, bounds):
+        pass
 
 
-def invisible(position, velocity, bounds):
-    skip = False
-    for i in range(len(position)):
-        if position[i] < bounds[0] or position[i] > bounds[1]:
-            skip = True
+class Absorbing(BoundaryCondition):
 
-    return position, velocity, skip
+    label = 'Ściana pochłaniająca'
+    marker = '.'
+    color = 'r'
 
+    def __init__(self):
+        self.skip = False
 
-def invisible_reflecting(position, velocity, bounds):
-    skip = False
-    for i in range(len(position)):
-        if position[i] < bounds[0] or position[i] > bounds[1]:
-            velocity[i] *= -1.0
-            skip = True
+    def calculate(self, position, velocity, bounds):
+        for i in range(len(position)):
+            if position[i] < bounds[0]:
+                position[i] = bounds[0]
+                velocity[i] = 0
+            if position[i] > bounds[1]:
+                position[i] = bounds[1]
+                velocity[i] = 0
 
-    return position, velocity, skip
-
-
-def invisible_damping(position, velocity, bounds):
-    skip = False
-    for i in range(len(position)):
-        if position[i] < bounds[0] or position[i] > bounds[1]:
-            velocity[i] *= -random.random()
-            skip = True
-
-    return position, velocity, skip
+        return position, velocity, self.skip
 
 
-def teleport(position, velocity, bounds):
-    for i in range(len(position)):
-        if position[i] < bounds[0]:
-            diff = bounds[0] - position[i]
-            position[i] = bounds[1] - diff
-        if position[i] > bounds[1]:
-            diff = position[i] - bounds[1]
-            position[i] = bounds[0] + diff
+class Reflecting(BoundaryCondition):
 
-    return position, velocity, False
+    label = 'Ściana odbijająca'
+    marker = 'v'
+    color = 'g'
+
+    def __init__(self):
+        self.skip = False
+
+    def calculate(self, position, velocity, bounds):
+        for i in range(len(position)):
+            if position[i] < bounds[0]:
+                position[i] = bounds[0]
+                velocity[i] *= -1.0
+            if position[i] > bounds[1]:
+                position[i] = bounds[1]
+                velocity[i] *= -1.0
+
+        return position, velocity, self.skip
+
+
+class Dumping(BoundaryCondition):
+
+    label = 'Ściana tłumiąca'
+    marker = '^'
+    color = 'b'
+
+    def __init__(self):
+        self.skip = False
+
+    def calculate(self, position, velocity, bounds):
+        for i in range(len(position)):
+            if position[i] < bounds[0]:
+                position[i] = bounds[0]
+                velocity[i] *= -random.random()
+            if position[i] > bounds[1]:
+                position[i] = bounds[1]
+                velocity[i] *= -random.random()
+
+        return position, velocity, self.skip
+
+
+class Invisible(BoundaryCondition):
+
+    label = 'Brak ścian'
+    marker = '<'
+    color = 'c'
+
+    def __init__(self):
+        self.skip = False
+
+    def calculate(self, position, velocity, bounds):
+        self.skip = False
+        for i in range(len(position)):
+            if position[i] < bounds[0] or position[i] > bounds[1]:
+                self.skip = True
+
+        return position, velocity, self.skip
+
+
+class InvisibleReflecting(BoundaryCondition):
+
+    label = ' invisible/reflecting'
+    marker = '>'
+    color = 'm'
+
+    def __init__(self):
+        self.skip = False
+
+    def calculate(self, position, velocity, bounds):
+        self.skip = False
+        for i in range(len(position)):
+            if position[i] < bounds[0] or position[i] > bounds[1]:
+                velocity[i] *= -1.0
+                self.skip = True
+
+        return position, velocity, self.skip
+
+
+class InvisibleDamping(BoundaryCondition):
+
+    label = 'invisible/damping'
+    marker = 's'
+    color = 'k'
+
+    def __init__(self):
+        self.skip = False
+
+    def calculate(self, position, velocity, bounds):
+        self.skip = False
+        for i in range(len(position)):
+            if position[i] < bounds[0] or position[i] > bounds[1]:
+                velocity[i] *= -random.random()
+                self.skip = True
+
+        return position, velocity, self.skip
+
+
+class Teleport(BoundaryCondition):
+
+    label = 'Ściana teleportująca'
+    marker = 'p'
+    color = 'y'
+
+    def __init__(self):
+        self.skip = False
+
+    def calculate(self, position, velocity, bounds):
+        for i in range(len(position)):
+            if position[i] < bounds[0]:
+                diff = bounds[0] - position[i]
+                position[i] = bounds[1] - diff
+            if position[i] > bounds[1]:
+                diff = position[i] - bounds[1]
+                position[i] = bounds[0] + diff
+
+        return position, velocity, self.skip
+
+
+# def invisible_accelerating(position, velocity, bounds):
+#     skip = False
+#     for i in range(len(position)):
+#         if position[i] < bounds[0] or position[i] > bounds[1]:
+#             velocity[i] *= -random.random()
+#             skip = True
+
+#     return position, velocity, skip

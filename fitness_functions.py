@@ -1,64 +1,78 @@
 import numpy as np
 
+from abc import (ABC, abstractmethod)
 
-class Sphere:
 
-    def __init__(self):
-        self.bounds = [-5.12, 5.12]
+class FitnessFunction(ABC):
 
-    def calculate_fitness(self, position):
+    @property
+    @abstractmethod
+    def bounds(self):
+        pass
+
+    @abstractmethod
+    def calculate_fitness(self, x):
+        pass
+
+
+class Sphere(FitnessFunction):
+
+    bounds = [-5.12, 5.12]
+
+    def calculate_fitness(self, x):
         fitness = 0
-        for i in range(len(position)):
-            fitness += position[i]**2
+        for i in range(len(x)):
+            fitness += x[i]**2
 
         return fitness
 
 
-class Rosenbrock:
+class Rosenbrock(FitnessFunction):
 
-    def __init__(self):
-        self.bounds = [-5, 10]
+    bounds = [-5, 10]
 
-    def calculate_fitness(self, position):
+    def calculate_fitness(self, x):
         fitness = 0
-        for i in range(len(position)-1):
-            fitness += 100*((position[i]**2) -
-                            position[i+1])**2 + (1-position[i])**2
+        for i in range(len(x)-1):
+            fitness += 100*((x[i]**2) -
+                            x[i+1])**2 + (1-x[i])**2
         return fitness
 
 
-class Rastrigin:
+class Rastrigin(FitnessFunction):
 
-    def __init__(self):
-        self.bounds = [-5.12, 5.12]
+    bounds = [-5.12, 5.12]
 
-    def calculate_fitness(self, position):
-        fitness = 10.0*len(position)
-        for i in range(len(position)):
-            fitness += position[i]**2.0 - (10.0*np.cos(2.0*np.pi*position[i]))
+    def calculate_fitness(self, x):
+        fitness = 10.0*len(x)
+        for i in range(len(x)):
+            fitness += x[i]**2.0 - (10.0*np.cos(2.0*np.pi*x[i]))
         return fitness
 
 
-class Griewank:
+class Griewank(FitnessFunction):
 
-    def __init__(self):
-        self.bounds = [-600, 600]
+    bounds = [-600, 600]
 
-    def calculate_fitness(self, position):
+    def calculate_fitness(self, x):
         firstSum = 0
         secondSum = 1
-        for i in range(len(position)):
-            firstSum += position[i]**2
-            secondSum *= np.cos(float(position[i]) / np.sqrt(i+1))
+        for i in range(len(x)):
+            firstSum += x[i]**2
+            secondSum *= np.cos(float(x[i]) / np.sqrt(i+1))
         fitness = 1 + (float(firstSum)/4000.0) - float(secondSum)
         return fitness
 
 
-def ackley(position):
-    firstSum = 0.0
-    secondSum = 0.0
-    for c in position:
-        firstSum += c**2.0
-        secondSum += np.cos(2.0*np.pi*c)
-    n = float(len(position))
-    return -20.0*np.exp(-0.2*np.sqrt(firstSum/n)) - np.exp(secondSum/n) + 20 + np.e
+class Ackley(FitnessFunction):
+
+    bounds = [-32, 32]
+
+    def calculate_fitness(self, x):
+        firstSum = 0.0
+        secondSum = 0.0
+        for c in x:
+            firstSum += c**2.0
+            secondSum += np.cos(2.0*np.pi*c)
+        n = float(len(x))
+        return -20.0*np.exp(-0.2*np.sqrt(firstSum/n)) - np.exp(secondSum/n) + 20 + np.e
