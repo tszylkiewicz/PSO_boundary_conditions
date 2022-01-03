@@ -1,30 +1,29 @@
 import random
 import numpy as np
-from numpy.linalg import cond
 from boundary_conditions import BoundaryCondition
 from dimensionality import Dimensionality
 from fitness_functions import FitnessFunction
-
 from particle import Particle
 
 
-class BasicPso:
+class PSO:
 
-    def __init__(self, dimensionality: Dimensionality, function: FitnessFunction, boundary_condition: BoundaryCondition, c1, c2):
-        self.bounds = function.bounds
+    def __init__(self, dimensionality: Dimensionality, fitness_function: FitnessFunction, boundary_condition: BoundaryCondition, c1, c2):
         self.dimensionality = dimensionality
+        self.fitness_function = fitness_function
+
         self.gbest = []
         self.gbest_position = []
         self.gbest_fitness = float('inf')
+
         self.r_norm = 0
         self.c1 = c1
         self.c2 = c2
         self.boundary_condition = boundary_condition.calculate
-        self.max_velocity = 0.5*(function.bounds[1]-function.bounds[0])
+        self.max_velocity = 0.5 * \
+            (self.fitness_function.bounds[1] - self.fitness_function.bounds[0])
 
-        self.function = function.calculate_fitness
-
-        self.swarm_particle = [Particle(dimensionality.dimensions, function)
+        self.swarm_particle = [Particle(dimensionality.dimensions, self.fitness_function)
                                for _ in range(self.dimensionality.swarm_size)]
 
         self.diameter = self.calculate_diameter()
@@ -39,8 +38,8 @@ class BasicPso:
         for _ in range(self.dimensionality.max_iterations):
             self.iteration += 1
             for particle in self.swarm_particle:
-                skip_evaluation = self.update_particle(particle)
-                if not skip_evaluation:
+                self.update_particle(particle)
+                if particle.valid_fitness:
                     self.evaluate_particle(particle)
 
             self.gbest.append(self.gbest_fitness)
@@ -49,6 +48,18 @@ class BasicPso:
                 break
 
     def update_particle(self,  particle: Particle):
+        self.update_velocity(particle)
+
+        # Velocity clamping
+        for i in range(self.dimensionality.dimensions):
+            if particle.velocity[i] >= self.max_velocity:
+                particle.velocity[i] = self.max_velocity
+
+        particle.position = particle.position + particle.velocity
+
+        self.boundary_condition(particle)
+
+    def update_velocity(self, particle: Particle):
         r1 = random.random()
         r2 = random.random()
 
@@ -58,24 +69,12 @@ class BasicPso:
 
         particle.velocity = particle.velocity + cognitive + social
 
-        #Velocity clamping 
-        for i in range(self.dimensionality.dimensions):
-            if particle.velocity[i] >= self.max_velocity:
-                particle.velocity[i] = self.max_velocity
-
-        particle.position = particle.position + particle.velocity
-
-        skip_evaluation = self.boundary_condition(particle, self.bounds)
-        return skip_evaluation
-
     def evaluate_particle(self, particle: Particle):
-        particle.update_fitness(self.function(particle.position))
+        particle.update_fitness(self.fitness_function.calculate_fitness(particle.position))
 
         if particle.fitness < self.gbest_fitness:
-            self.gbest_position = list(
-                particle.position)
-            self.gbest_fitness = float(
-                particle.fitness)
+            self.gbest_position = list(particle.position)
+            self.gbest_fitness = float(particle.fitness)
 
     def calculate_diameter(self):
         result = 0.0
