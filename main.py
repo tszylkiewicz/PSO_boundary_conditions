@@ -6,16 +6,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from CFBPSO import CfbPso
 from FCPSO import FcPso
-from InteriaWeightPSO import InteriaWeightPso
+from InteriaWeightPSO import InteriaWeightPSO
 from SOCPSO import SocPso
 
 from dimensionality import Dimensionality
-from classic_pso import BasicPso
+from pso import PSO
 from boundary_conditions import Absorbing, Dumping, Reflecting, Swap, Teleport, Testing
 from fitness_functions import Griewank, Rastrigin, Rosenbrock, Sphere
-from scipy.spatial import KDTree
 
-functions = [ Griewank(), Rastrigin()]
+functions = [Griewank()]
 boundary_conditions = [Absorbing(), Reflecting(),
                        Dumping(), Teleport(), Swap(), Testing()]
 dimensions = [Dimensionality(3, 30, 200)]
@@ -64,16 +63,16 @@ def main():
 
                 gbest_runs = []
                 for _ in tqdm(range(runs)):
-                    swarm = BasicPso(dimension, eval_function,
-                                     boundary_condition, cognitive_param, social_param)
-                    # swarm = InteriaWeightPso(dimension, eval_function,
-                    #                  boundary_condition, cognitive_param, social_param)
+                    swarm = PSO(dimension, eval_function,
+                                boundary_condition, cognitive_param, social_param)
+                    # swarm = InteriaWeightPSO(dimension, eval_function,
+                    #                          boundary_condition, cognitive_param, social_param)
                     # swarm = CfbPso(dimension, eval_function,
-                    #                  boundary_condition, cognitive_param, social_param)
+                    #                boundary_condition, cognitive_param, social_param)
                     # swarm = FcPso(dimension, eval_function,
-                    #  boundary_condition, cognitive_param, social_param)
+                                #   boundary_condition, cognitive_param, social_param)
                     # swarm = SocPso(dimension, eval_function,
-                    #                  boundary_condition, cognitive_param, social_param)
+                    #                boundary_condition, cognitive_param, social_param)
                     swarm.optimize()
                     gbest_runs.append(swarm.gbest)
 

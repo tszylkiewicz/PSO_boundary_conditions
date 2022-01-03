@@ -7,17 +7,20 @@ from fitness_functions import FitnessFunction
 
 class Particle:
 
-    def __init__(self, dim, function: FitnessFunction):
+    def __init__(self, dim, fitness_function: FitnessFunction):
+        self.bounds = fitness_function.bounds
+        self.valid_fitness = True
+        
         self.position = np.array(
-            [self.init_position(function.bounds[0], function.bounds[1]) for _ in range(dim)])
+            [self.init_position(self.bounds[0], self.bounds[1]) for _ in range(dim)])
         self.velocity = np.zeros(dim)
-        self.fitness = function.calculate_fitness(self.position)
+        self.fitness = fitness_function.calculate_fitness(self.position)
 
         self.pbest_position = copy.deepcopy(self.position)
-        self.pbest_fitness = function.calculate_fitness(self.pbest_position)
+        self.pbest_fitness = fitness_function.calculate_fitness(self.pbest_position)
 
-    def init_position(self, min, max):
-        return min + (np.random.uniform() * (max-min))
+    def init_position(self, x_min, x_max):
+        return x_min + (np.random.uniform() * (x_max - x_min))
 
     def update_fitness(self, new_fitness):
         self.fitness = new_fitness

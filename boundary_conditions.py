@@ -23,7 +23,7 @@ class BoundaryCondition(ABC):
         pass
 
     @abstractmethod
-    def calculate(self, particle: Particle, bounds):
+    def calculate(self, particle: Particle):
         pass
 
     def __str__(self):
@@ -36,19 +36,15 @@ class Absorbing(BoundaryCondition):
     marker = '.'
     color = 'r'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
+    def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0]:
-                particle.position[i] = bounds[0]
+            particle.valid_fitness = True
+            if particle.position[i] < particle.bounds[0]:
+                particle.position[i] = particle.bounds[0]
                 particle.velocity[i] = 0
-            if particle.position[i] > bounds[1]:
-                particle.position[i] = bounds[1]
+            if particle.position[i] > particle.bounds[1]:
+                particle.position[i] = particle.bounds[1]
                 particle.velocity[i] = 0
-
-        return self.skip
 
 
 class Reflecting(BoundaryCondition):
@@ -57,19 +53,15 @@ class Reflecting(BoundaryCondition):
     marker = 'v'
     color = 'g'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
+    def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0]:
-                particle.position[i] = bounds[0]
+            particle.valid_fitness = True
+            if particle.position[i] < particle.bounds[0]:
+                particle.position[i] = particle.bounds[0]
                 particle.velocity[i] *= -1.0
-            if particle.position[i] > bounds[1]:
-                particle.position[i] = bounds[1]
+            if particle.position[i] > particle.bounds[1]:
+                particle.position[i] = particle.bounds[1]
                 particle.velocity[i] *= -1.0
-
-        return self.skip
 
 
 class Dumping(BoundaryCondition):
@@ -78,19 +70,15 @@ class Dumping(BoundaryCondition):
     marker = '^'
     color = 'b'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
+    def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0]:
-                particle.position[i] = bounds[0]
+            particle.valid_fitness = True
+            if particle.position[i] < particle.bounds[0]:
+                particle.position[i] = particle.bounds[0]
                 particle.velocity[i] *= -random.random()
-            if particle.position[i] > bounds[1]:
-                particle.position[i] = bounds[1]
+            if particle.position[i] > particle.bounds[1]:
+                particle.position[i] = particle.bounds[1]
                 particle.velocity[i] *= -random.random()
-
-        return self.skip
 
 
 class Invisible(BoundaryCondition):
@@ -99,16 +87,11 @@ class Invisible(BoundaryCondition):
     marker = '<'
     color = 'c'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
-        self.skip = False
+    def calculate(self, particle: Particle):
+        particle.valid_fitness = True
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0] or particle.position[i] > bounds[1]:
-                self.skip = True
-
-        return self.skip
+            if particle.position[i] < particle.bounds[0] or particle.position[i] > particle.bounds[1]:
+                particle.valid_fitness = False
 
 
 class InvisibleReflecting(BoundaryCondition):
@@ -117,17 +100,12 @@ class InvisibleReflecting(BoundaryCondition):
     marker = '>'
     color = 'm'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
-        self.skip = False
+    def calculate(self, particle: Particle):
+        particle.valid_fitness = True
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0] or particle.position[i] > bounds[1]:
+            if particle.position[i] < particle.bounds[0] or particle.position[i] > particle.bounds[1]:
                 particle.velocity[i] *= -1.0
-                self.skip = True
-
-        return self.skip
+                particle.valid_fitness = False
 
 
 class InvisibleDamping(BoundaryCondition):
@@ -136,17 +114,12 @@ class InvisibleDamping(BoundaryCondition):
     marker = 's'
     color = 'k'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
-        self.skip = False
+    def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0] or particle.position[i] > bounds[1]:
+            particle.valid_fitness = True
+            if particle.position[i] < particle.bounds[0] or particle.position[i] > particle.bounds[1]:
                 particle.velocity[i] *= -random.random()
-                self.skip = True
-
-        return self.skip
+                particle.valid_fitness = False
 
 
 class Teleport(BoundaryCondition):
@@ -155,21 +128,17 @@ class Teleport(BoundaryCondition):
     marker = 'p'
     color = 'y'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
+    def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0]:
-                diff = bounds[0] - particle.position[i]
-                particle.position[i] = bounds[1] - diff
+            particle.valid_fitness = True
+            if particle.position[i] < particle.bounds[0]:
+                diff = particle.bounds[0] - particle.position[i]
+                particle.position[i] = particle.bounds[1] - diff
                 particle.velocity[i] = 0
-            if particle.position[i] > bounds[1]:
-                diff = particle.position[i] - bounds[1]
-                particle.position[i] = bounds[0] + diff
+            if particle.position[i] > particle.bounds[1]:
+                diff = particle.position[i] - particle.bounds[1]
+                particle.position[i] = particle.bounds[0] + diff
                 particle.velocity[i] = 0
-
-        return self.skip
 
 
 class Swap(BoundaryCondition):
@@ -178,21 +147,17 @@ class Swap(BoundaryCondition):
     marker = '*'
     color = 'k'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
+    def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0]:
-                diff = bounds[0] - particle.position[i]
-                particle.position[i] = bounds[0] + diff
+            particle.valid_fitness = True
+            if particle.position[i] < particle.bounds[0]:
+                diff = particle.bounds[0] - particle.position[i]
+                particle.position[i] = particle.bounds[0] + diff
                 particle.velocity[i] = 0
-            if particle.position[i] > bounds[1]:
-                diff = particle.position[i] - bounds[1]
-                particle.position[i] = bounds[1] - diff
+            if particle.position[i] > particle.bounds[1]:
+                diff = particle.position[i] - particle.bounds[1]
+                particle.position[i] = particle.bounds[1] - diff
                 particle.velocity[i] = 0
-
-        return self.skip
 
 
 class Testing(BoundaryCondition):
@@ -201,13 +166,9 @@ class Testing(BoundaryCondition):
     marker = '+'
     color = '#0f3d11'
 
-    def __init__(self):
-        self.skip = False
-
-    def calculate(self, particle: Particle, bounds):
+    def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
-            if particle.position[i] < bounds[0] or particle.position[i] > bounds[1]:
+            particle.valid_fitness = True
+            if particle.position[i] < particle.bounds[0] or particle.position[i] > particle.bounds[1]:
                 particle.position[i] = particle.pbest_position[i]
                 particle.velocity[i] = 0
-
-        return self.skip
