@@ -7,16 +7,24 @@ class FitnessFunction(ABC):
 
     @property
     @abstractmethod
+    def label(self):
+        pass
+
+    @property
+    @abstractmethod
     def bounds(self):
         pass
 
     @abstractmethod
     def calculate_fitness(self, x):
         pass
+    
+    def __str__(self) -> str:
+        return self.label
 
 
 class Sphere(FitnessFunction):
-
+    label = 'Sferyczna'
     bounds = [-5.12, 5.12]
 
     def calculate_fitness(self, x):
@@ -28,7 +36,7 @@ class Sphere(FitnessFunction):
 
 
 class Rosenbrock(FitnessFunction):
-
+    label = 'Rosenbrock'
     bounds = [-5, 10]
 
     def calculate_fitness(self, x):
@@ -40,7 +48,7 @@ class Rosenbrock(FitnessFunction):
 
 
 class Rastrigin(FitnessFunction):
-
+    label = 'Rastrigin'
     bounds = [-5.12, 5.12]
 
     def calculate_fitness(self, x):
@@ -51,7 +59,7 @@ class Rastrigin(FitnessFunction):
 
 
 class Griewank(FitnessFunction):
-
+    label = 'Griewank'
     bounds = [-600, 600]
 
     def calculate_fitness(self, x):
@@ -65,7 +73,7 @@ class Griewank(FitnessFunction):
 
 
 class Ackley(FitnessFunction):
-
+    label = 'Ackley'
     bounds = [-32, 32]
 
     def calculate_fitness(self, x):

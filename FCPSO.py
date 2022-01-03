@@ -77,8 +77,7 @@ class FcPso:
 
         particle.position = particle.position + particle.velocity
 
-        particle.position, particle.velocity, skip_evaluation = self.boundary_condition(
-            particle.position, particle.velocity, self.bounds)
+        skip_evaluation = self.boundary_condition(particle, self.bounds)
         return skip_evaluation
 
     def evaluate_particle(self, particle: Particle):

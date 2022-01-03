@@ -2,10 +2,12 @@ import random
 import copy
 import numpy as np
 
+from fitness_functions import FitnessFunction
+
 
 class Particle:
 
-    def __init__(self, dim, function):
+    def __init__(self, dim, function: FitnessFunction):
         self.position = np.array(
             [self.init_position(function.bounds[0], function.bounds[1]) for _ in range(dim)])
         self.velocity = np.zeros(dim)
