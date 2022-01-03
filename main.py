@@ -1,25 +1,30 @@
 import os
-from statistics import stdev, mean
+import csv
+from statistics import median, stdev, mean
 from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 from CFBPSO import CfbPso
 from FCPSO import FcPso
 from InteriaWeightPSO import InteriaWeightPso
+from SOCPSO import SocPso
 
 from dimensionality import Dimensionality
 from classic_pso import BasicPso
-from boundary_conditions import Absorbing, Dumping, Reflecting, Teleport
+from boundary_conditions import Absorbing, Dumping, Reflecting, Swap, Teleport, Testing
 from fitness_functions import Griewank, Rastrigin, Rosenbrock, Sphere
+from scipy.spatial import KDTree
 
-functions = [Sphere(), Rosenbrock()]
-boundary_conditions = [Absorbing(), Reflecting(), Dumping(), Teleport()]
+functions = [ Griewank(), Rastrigin()]
+boundary_conditions = [Absorbing(), Reflecting(),
+                       Dumping(), Teleport(), Swap(), Testing()]
 dimensions = [Dimensionality(3, 30, 200)]
 
 cognitive_param = 2.0
 social_param = 2.1
 
 runs = 50
+
 
 def tolerant_mean(arrs):
     lens = [len(i) for i in arrs]
@@ -31,11 +36,17 @@ def tolerant_mean(arrs):
 
 
 def main():
-   
+
     labels = [o.label for o in boundary_conditions]
-   
+
+    csv_headers = ['Funkcja', 'Parametry', 'Warunek brzegowy', 'Najgorsze rozwiązanie',
+                   'Najlepsze rozwiązanie', 'Średnia', 'Odchylenie standardowe', 'Median']
+    f = open('results/results.csv', 'w', encoding='utf-8')
+    writer = csv.writer(f)
+    writer.writerow(csv_headers)
+
     for eval_function in functions:
-        print(eval_function.__class__.__name__)
+        print(eval_function)
 
         for dimension in dimensions:
             print('Number of dimensions: {0}'.format(dimension.dimensions))
@@ -46,32 +57,41 @@ def main():
             ax.set_ylabel('Global best')
             ax.set_yscale('log')
             ax.set_title('Funkcja: {0}, N={1}'.format(
-                eval_function.__class__.__name__, dimension.dimensions))
+                eval_function, dimension.dimensions))
 
             for boundary_condition in boundary_conditions:
-                print("\t"+boundary_condition.__class__.__name__)
+                print('\t {0}'.format(boundary_condition))
 
                 gbest_runs = []
                 for _ in tqdm(range(runs)):
-                    # swarm = BasicPso(dimension, eval_function,
-                                    #  boundary_condition, cognitive_param, social_param)
+                    swarm = BasicPso(dimension, eval_function,
+                                     boundary_condition, cognitive_param, social_param)
                     # swarm = InteriaWeightPso(dimension, eval_function,
                     #                  boundary_condition, cognitive_param, social_param)
                     # swarm = CfbPso(dimension, eval_function,
                     #                  boundary_condition, cognitive_param, social_param)
-                    swarm = FcPso(dimension, eval_function,
-                                     boundary_condition, cognitive_param, social_param)
+                    # swarm = FcPso(dimension, eval_function,
+                    #  boundary_condition, cognitive_param, social_param)
+                    # swarm = SocPso(dimension, eval_function,
+                    #                  boundary_condition, cognitive_param, social_param)
                     swarm.optimize()
                     gbest_runs.append(swarm.gbest)
 
                 y, error = tolerant_mean(gbest_runs)
                 ax.plot(np.arange(len(y)), y,
                         color=boundary_condition.color, marker=boundary_condition.marker, label=boundary_condition.label)
-                print('Max: {0} | Min: {1} | Mean: {2} | Stdev: {3} | Iteration: {4}'.format(
-                    max(swarm.gbest), min(swarm.gbest), mean(swarm.gbest), stdev(swarm.gbest), swarm.iteration))
+                print('Results:')
+                print('Max: {0} | Min: {1} | Mean: {2} | Stdev: {3} | Median: {4}'.format(
+                    max(y), min(y), mean(y), stdev(y), median(y)))
+
+                writer.writerow([eval_function, dimension, boundary_condition, max(
+                    y), min(y), mean(y),  stdev(y), median(y)])
+
             ax.legend(labels, loc="upper right")
             plt.savefig('results/{0}_{1}_{2}.png'.format(swarm.__class__.__name__,
-                eval_function.__class__.__name__, dimension.dimensions))
+                                                         eval_function.__class__.__name__, dimension.dimensions))
+
+    f.close()
 
 
 if __name__ == "__main__":
