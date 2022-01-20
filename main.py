@@ -4,23 +4,22 @@ from statistics import median, stdev, mean
 from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
+from pso import PSO
 from CFBPSO import CfbPso
 from FCPSO import FcPso
 from InteriaWeightPSO import InteriaWeightPSO
 from SOCPSO import SocPso
 
 from dimensionality import Dimensionality
-from pso import PSO
-from boundary_conditions import Absorbing, Dumping, Reflecting, Swap, Teleport, Testing
-from fitness_functions import Griewank, Rastrigin, Rosenbrock, Sphere
+from boundary_conditions import Absorbing, Dumping, Reflecting, Swap, Teleport, Testing, Invisible, InvisibleDamping, InvisibleReflecting
+from fitness_functions import Ackley, Griewank, Rastrigin, Rosenbrock, Sphere
+from scipy.spatial import KDTree
 
-functions = [Griewank()]
-boundary_conditions = [Absorbing(), Reflecting(),
-                       Dumping(), Teleport(), Swap(), Testing()]
-dimensions = [Dimensionality(3, 30, 200)]
-
-cognitive_param = 2.0
-social_param = 2.1
+functions = [Sphere(), Griewank(), Rastrigin(), Rosenbrock(), Ackley()]
+boundary_conditions = [Absorbing(), Reflecting(), Dumping(), Invisible(
+), InvisibleDamping(), InvisibleReflecting(), Teleport(), Swap(), Testing()]
+dimensions = [Dimensionality(3, 100, 1000), Dimensionality(
+    30, 150, 1500), Dimensionality(50, 250, 2500)]
 
 runs = 50
 
@@ -53,9 +52,9 @@ def main():
             fig = plt.figure()
             ax = fig.add_subplot()
             ax.set_xlabel('Liczba iteracji')
-            ax.set_ylabel('Global best')
+            ax.set_ylabel('Średnie rozwiązanie po 50 uruchomieniach')
             ax.set_yscale('log')
-            ax.set_title('Funkcja: {0}, N={1}'.format(
+            ax.set_title('{0}, N={1}'.format(
                 eval_function, dimension.dimensions))
 
             for boundary_condition in boundary_conditions:
@@ -63,16 +62,15 @@ def main():
 
                 gbest_runs = []
                 for _ in tqdm(range(runs)):
-                    swarm = PSO(dimension, eval_function,
-                                boundary_condition, cognitive_param, social_param)
+                    swarm = PSO(dimension, eval_function, boundary_condition)
                     # swarm = InteriaWeightPSO(dimension, eval_function,
-                    #                          boundary_condition, cognitive_param, social_param)
+                    #                          boundary_condition)
                     # swarm = CfbPso(dimension, eval_function,
-                    #                boundary_condition, cognitive_param, social_param)
+                    #                boundary_condition)
                     # swarm = FcPso(dimension, eval_function,
-                                #   boundary_condition, cognitive_param, social_param)
+                    #   boundary_condition)
                     # swarm = SocPso(dimension, eval_function,
-                    #                boundary_condition, cognitive_param, social_param)
+                    #                boundary_condition)
                     swarm.optimize()
                     gbest_runs.append(swarm.gbest)
 
@@ -86,7 +84,7 @@ def main():
                 writer.writerow([eval_function, dimension, boundary_condition, max(
                     y), min(y), mean(y),  stdev(y), median(y)])
 
-            ax.legend(labels, loc="upper right")
+            ax.legend(labels, loc="upper right", fontsize=9)
             plt.savefig('results/{0}_{1}_{2}.png'.format(swarm.__class__.__name__,
                                                          eval_function.__class__.__name__, dimension.dimensions))
 

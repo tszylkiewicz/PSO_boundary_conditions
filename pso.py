@@ -8,7 +8,7 @@ from particle import Particle
 
 class PSO:
 
-    def __init__(self, dimensionality: Dimensionality, fitness_function: FitnessFunction, boundary_condition: BoundaryCondition, c1, c2):
+    def __init__(self, dimensionality: Dimensionality, fitness_function: FitnessFunction, boundary_condition: BoundaryCondition):
         self.dimensionality = dimensionality
         self.fitness_function = fitness_function
 
@@ -17,10 +17,10 @@ class PSO:
         self.gbest_fitness = float('inf')
 
         self.r_norm = 0
-        self.c1 = c1
-        self.c2 = c2
+        self.c1 = 2.0
+        self.c2 = 2.0
         self.boundary_condition = boundary_condition.calculate
-        self.max_velocity = 0.5 * \
+        self.max_velocity = 0.1 * \
             (self.fitness_function.bounds[1] - self.fitness_function.bounds[0])
 
         self.swarm_particle = [Particle(dimensionality.dimensions, self.fitness_function)
@@ -44,7 +44,7 @@ class PSO:
 
             self.gbest.append(self.gbest_fitness)
             self.r_norm = self.calculate_r_norm()
-            if self.r_norm < 0.35:
+            if self.r_norm < 0.15:
                 break
 
     def update_particle(self,  particle: Particle):

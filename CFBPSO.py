@@ -11,9 +11,11 @@ from pso import PSO
 
 class CfbPso(PSO):
 
-    def __init__(self, dimensionality: Dimensionality, fitness_function: FitnessFunction, boundary_condition: BoundaryCondition, c1, c2):
-        super().__init__(dimensionality, fitness_function, boundary_condition, c1, c2)
+    def __init__(self, dimensionality: Dimensionality, fitness_function: FitnessFunction, boundary_condition: BoundaryCondition):
+        super().__init__(dimensionality, fitness_function, boundary_condition)
 
+        self.c1 = 2.1
+        self.c2 = 2.1
         self.fi = self.c1 + self.c2
         self.K = self.calculate_K()
     

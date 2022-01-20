@@ -83,7 +83,7 @@ class Dumping(BoundaryCondition):
 
 class Invisible(BoundaryCondition):
 
-    label = 'Brak ścian'
+    label = 'Niewidoczna ściana'
     marker = '<'
     color = 'c'
 
@@ -96,7 +96,7 @@ class Invisible(BoundaryCondition):
 
 class InvisibleReflecting(BoundaryCondition):
 
-    label = ' invisible/reflecting'
+    label = 'Niewidoczna ściana odbijająca'
     marker = '>'
     color = 'm'
 
@@ -110,7 +110,7 @@ class InvisibleReflecting(BoundaryCondition):
 
 class InvisibleDamping(BoundaryCondition):
 
-    label = 'invisible/damping'
+    label = 'Niewidoczna ściana  tłumiąca'
     marker = 's'
     color = 'k'
 
@@ -143,7 +143,7 @@ class Teleport(BoundaryCondition):
 
 class Swap(BoundaryCondition):
 
-    label = 'Ściana testowa'
+    label = 'Ściana lustrzana'
     marker = '*'
     color = 'k'
 
@@ -162,7 +162,7 @@ class Swap(BoundaryCondition):
 
 class Testing(BoundaryCondition):
 
-    label = 'Ściana testowa 2'
+    label = 'Ściana resetująca'
     marker = '+'
     color = '#0f3d11'
 

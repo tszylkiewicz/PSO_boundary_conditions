@@ -9,8 +9,8 @@ from particle import Particle
 
 class InteriaWeightPSO(PSO):
 
-    def __init__(self, dimensionality: Dimensionality, fitness_function: FitnessFunction, boundary_condition: BoundaryCondition, c1, c2):
-        super().__init__(dimensionality, fitness_function, boundary_condition, c1, c2)
+    def __init__(self, dimensionality: Dimensionality, fitness_function: FitnessFunction, boundary_condition: BoundaryCondition):
+        super().__init__(dimensionality, fitness_function, boundary_condition)
         
         self.w = 0.0
         self.w_max = 0.9
@@ -28,7 +28,7 @@ class InteriaWeightPSO(PSO):
 
             self.gbest.append(self.gbest_fitness)
             self.r_norm = self.calculate_r_norm()
-            if self.r_norm < 0.35:
+            if self.r_norm < 0.3:
                 break
 
     def update_velocity(self,  particle: Particle):
