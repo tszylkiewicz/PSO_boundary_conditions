@@ -1,4 +1,3 @@
-import os
 import csv
 from statistics import median, stdev, mean
 from tqdm import tqdm
@@ -11,17 +10,17 @@ from InteriaWeightPSO import InteriaWeightPSO
 from SOCPSO import SocPso
 
 from dimensionality import Dimensionality
-from boundary_conditions import Absorbing, Dumping, Reflecting, Swap, Teleport, Testing, Invisible, InvisibleDamping, InvisibleReflecting
+from boundary_conditions import Absorbing, Dumping, Reflecting, Mirroring, Teleporting, Reseting, Invisible, InvisibleDamping, InvisibleReflecting
 from fitness_functions import Ackley, Griewank, Rastrigin, Rosenbrock, Sphere
-from scipy.spatial import KDTree
 
+swarm_type = 1
+runs = 10
+
+boundary_conditions = [Absorbing(), Reflecting(), Dumping(),
+                       Invisible(), InvisibleDamping(), InvisibleReflecting(),
+                       Mirroring(), Reseting(), Teleporting()]
+dimensions = [Dimensionality(20, 100, 1000)]
 functions = [Sphere(), Griewank(), Rastrigin(), Rosenbrock(), Ackley()]
-boundary_conditions = [Absorbing(), Reflecting(), Dumping(), Invisible(
-), InvisibleDamping(), InvisibleReflecting(), Teleport(), Swap(), Testing()]
-dimensions = [Dimensionality(3, 100, 1000), Dimensionality(
-    30, 150, 1500), Dimensionality(50, 250, 2500)]
-
-runs = 50
 
 
 def tolerant_mean(arrs):
@@ -30,7 +29,7 @@ def tolerant_mean(arrs):
     arr.mask = True
     for idx, l in enumerate(arrs):
         arr[:len(l), idx] = l
-    return arr.mean(axis=-1), arr.std(axis=-1)
+    return arr.mean(axis=-1)
 
 
 def main():
@@ -44,7 +43,7 @@ def main():
     writer.writerow(csv_headers)
 
     for eval_function in functions:
-        print(eval_function)
+        print('Function name: {0}'.format(eval_function))
 
         for dimension in dimensions:
             print('Number of dimensions: {0}'.format(dimension.dimensions))
@@ -52,8 +51,10 @@ def main():
             fig = plt.figure()
             ax = fig.add_subplot()
             ax.set_xlabel('Liczba iteracji')
-            ax.set_ylabel('Średnie rozwiązanie po 50 uruchomieniach')
+            ax.set_ylabel(
+                'Średnie rozwiązanie po {0} uruchomieniach'.format(runs))
             ax.set_yscale('log')
+            ax.set_ylim(0.07, 10)
             ax.set_title('{0}, N={1}'.format(
                 eval_function, dimension.dimensions))
 
@@ -62,21 +63,27 @@ def main():
 
                 gbest_runs = []
                 for _ in tqdm(range(runs)):
-                    swarm = PSO(dimension, eval_function, boundary_condition)
-                    # swarm = InteriaWeightPSO(dimension, eval_function,
-                    #                          boundary_condition)
-                    # swarm = CfbPso(dimension, eval_function,
-                    #                boundary_condition)
-                    # swarm = FcPso(dimension, eval_function,
-                    #   boundary_condition)
-                    # swarm = SocPso(dimension, eval_function,
-                    #                boundary_condition)
+                    if swarm_type == 1:
+                        swarm = PSO(dimension, eval_function,
+                                    boundary_condition)
+                    elif swarm_type == 2:
+                        swarm = InteriaWeightPSO(
+                            dimension, eval_function, boundary_condition)
+                    elif swarm_type == 3:
+                        swarm = CfbPso(dimension, eval_function,
+                                       boundary_condition)
+                    elif swarm_type == 4:
+                        swarm = FcPso(dimension, eval_function,
+                                      boundary_condition)
+                    else:
+                        swarm = SocPso(dimension, eval_function,
+                                       boundary_condition)
                     swarm.optimize()
                     gbest_runs.append(swarm.gbest)
 
-                y, error = tolerant_mean(gbest_runs)
+                y = tolerant_mean(gbest_runs)
                 ax.plot(np.arange(len(y)), y,
-                        color=boundary_condition.color, marker=boundary_condition.marker, label=boundary_condition.label)
+                           color=boundary_condition.color, label=boundary_condition.label)
                 print('Results:')
                 print('Max: {0} | Min: {1} | Mean: {2} | Stdev: {3} | Median: {4}'.format(
                     max(y), min(y), mean(y), stdev(y), median(y)))

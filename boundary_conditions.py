@@ -122,7 +122,7 @@ class InvisibleDamping(BoundaryCondition):
                 particle.valid_fitness = False
 
 
-class Teleport(BoundaryCondition):
+class Teleporting(BoundaryCondition):
 
     label = 'Ściana teleportująca'
     marker = 'p'
@@ -141,11 +141,11 @@ class Teleport(BoundaryCondition):
                 particle.velocity[i] = 0
 
 
-class Swap(BoundaryCondition):
+class Mirroring(BoundaryCondition):
 
     label = 'Ściana lustrzana'
     marker = '*'
-    color = 'k'
+    color = '#8a42f5'
 
     def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
@@ -160,11 +160,11 @@ class Swap(BoundaryCondition):
                 particle.velocity[i] = 0
 
 
-class Testing(BoundaryCondition):
+class Reseting(BoundaryCondition):
 
     label = 'Ściana resetująca'
     marker = '+'
-    color = '#0f3d11'
+    color = '#00ff08'
 
     def calculate(self, particle: Particle):
         for i in range(len(particle.position)):
