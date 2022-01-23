@@ -13,13 +13,13 @@ from dimensionality import Dimensionality
 from boundary_conditions import Absorbing, Dumping, Reflecting, Mirroring, Teleporting, Reseting, Invisible, InvisibleDamping, InvisibleReflecting
 from fitness_functions import Ackley, Griewank, Rastrigin, Rosenbrock, Sphere
 
-swarm_type = 1
+swarm_type = 2
 runs = 10
 
 boundary_conditions = [Absorbing(), Reflecting(), Dumping(),
                        Invisible(), InvisibleDamping(), InvisibleReflecting(),
                        Mirroring(), Reseting(), Teleporting()]
-dimensions = [Dimensionality(20, 100, 1000)]
+dimensions = [Dimensionality(20, 100, 1000), Dimensionality(30, 150, 2000), Dimensionality(50, 250, 4000)]
 functions = [Sphere(), Griewank(), Rastrigin(), Rosenbrock(), Ackley()]
 
 
@@ -38,7 +38,7 @@ def main():
 
     csv_headers = ['Funkcja', 'Parametry', 'Warunek brzegowy', 'Najgorsze rozwiązanie',
                    'Najlepsze rozwiązanie', 'Średnia', 'Odchylenie standardowe', 'Median']
-    f = open('results/results.csv', 'w', encoding='utf-8')
+    f = open('results/FcPso_results.csv', 'w', encoding='utf-8')
     writer = csv.writer(f)
     writer.writerow(csv_headers)
 
@@ -54,7 +54,6 @@ def main():
             ax.set_ylabel(
                 'Średnie rozwiązanie po {0} uruchomieniach'.format(runs))
             ax.set_yscale('log')
-            ax.set_ylim(0.07, 10)
             ax.set_title('{0}, N={1}'.format(
                 eval_function, dimension.dimensions))
 

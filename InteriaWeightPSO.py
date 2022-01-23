@@ -27,8 +27,7 @@ class InteriaWeightPSO(PSO):
                     self.evaluate_particle(particle)
 
             self.gbest.append(self.gbest_fitness)
-            self.r_norm = self.calculate_r_norm()
-            if self.r_norm < 0.3:
+            if self.gbest_fitness < 0.1:
                 break
 
     def update_velocity(self,  particle: Particle):
