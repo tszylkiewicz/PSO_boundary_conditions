@@ -25,7 +25,7 @@ class FitnessFunction(ABC):
 
 class Sphere(FitnessFunction):
     label = 'Funkcja sferyczna'
-    bounds = [-5.12, 5.12]
+    bounds = [-9.12, 1.12]
 
     def calculate_fitness(self, x):
         fitness = 0
@@ -37,7 +37,7 @@ class Sphere(FitnessFunction):
 
 class Rosenbrock(FitnessFunction):
     label = 'Funkcja Rosenbrock'
-    bounds = [-2.048, 2.048]
+    bounds = [0.0, 4.096]
 
     def calculate_fitness(self, x):
         fitness = 0
@@ -49,7 +49,7 @@ class Rosenbrock(FitnessFunction):
 
 class Rastrigin(FitnessFunction):
     label = 'Funkcja Rastrigin'
-    bounds = [-5.12, 5.12]
+    bounds = [-1.12, 9.12]
 
     def calculate_fitness(self, x):
         fitness = 10.0*len(x)
@@ -60,7 +60,7 @@ class Rastrigin(FitnessFunction):
 
 class Griewank(FitnessFunction):
     label = 'Funkcja Griewank'
-    bounds = [-600, 600]
+    bounds = [-1119.0, 1.0]
 
     def calculate_fitness(self, x):
         firstSum = 0
@@ -74,7 +74,7 @@ class Griewank(FitnessFunction):
 
 class Ackley(FitnessFunction):
     label = 'Funkcja Ackley'
-    bounds = [-32.768, 32.768]
+    bounds = [-1.768, 63.768]
 
     def calculate_fitness(self, x):
         firstSum = 0.0
