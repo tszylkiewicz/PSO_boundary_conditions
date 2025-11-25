@@ -32,7 +32,7 @@ class BoundaryCondition(ABC):
 
 class Absorbing(BoundaryCondition):
 
-    label = 'Ściana pochłaniająca'
+    label = 'Absorbing'
     marker = '.'
     color = 'r'
 
@@ -49,7 +49,7 @@ class Absorbing(BoundaryCondition):
 
 class Reflecting(BoundaryCondition):
 
-    label = 'Ściana odbijająca'
+    label = 'Reflecting'
     marker = 'v'
     color = 'g'
 
@@ -66,7 +66,7 @@ class Reflecting(BoundaryCondition):
 
 class Dumping(BoundaryCondition):
 
-    label = 'Ściana tłumiąca'
+    label = 'Damping'
     marker = '^'
     color = 'b'
 
@@ -83,7 +83,7 @@ class Dumping(BoundaryCondition):
 
 class Invisible(BoundaryCondition):
 
-    label = 'Niewidoczna ściana'
+    label = 'Invisible'
     marker = '<'
     color = 'c'
 
@@ -96,7 +96,7 @@ class Invisible(BoundaryCondition):
 
 class InvisibleReflecting(BoundaryCondition):
 
-    label = 'Niewidoczna ściana odbijająca'
+    label = 'Invisible/Reflecting'
     marker = '>'
     color = 'm'
 
@@ -110,7 +110,7 @@ class InvisibleReflecting(BoundaryCondition):
 
 class InvisibleDamping(BoundaryCondition):
 
-    label = 'Niewidoczna ściana  tłumiąca'
+    label = 'Invisible/Damping'
     marker = 's'
     color = 'k'
 
@@ -124,7 +124,7 @@ class InvisibleDamping(BoundaryCondition):
 
 class Teleporting(BoundaryCondition):
 
-    label = 'Ściana teleportująca'
+    label = 'Teleporting'
     marker = 'p'
     color = 'y'
 
@@ -143,7 +143,7 @@ class Teleporting(BoundaryCondition):
 
 class Mirroring(BoundaryCondition):
 
-    label = 'Ściana lustrzana'
+    label = 'Mirroring'
     marker = '*'
     color = '#8a42f5'
 
@@ -162,7 +162,7 @@ class Mirroring(BoundaryCondition):
 
 class Reseting(BoundaryCondition):
 
-    label = 'Ściana resetująca'
+    label = 'Restarting'
     marker = '+'
     color = '#00ff08'
 

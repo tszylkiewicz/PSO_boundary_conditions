@@ -21,7 +21,7 @@ boundary_conditions = [Absorbing(), Reflecting(), Dumping(),
 dimensions = [Dimensionality(20, 50, 200), Dimensionality(30, 100, 300), Dimensionality(50, 200, 500)]
 # dimensions = [Dimensionality(2, 10, 20)]
 functions = [Sphere(), Griewank(), Rastrigin(), Rosenbrock(), Ackley()]
-algorithms = ['pso','iwpso','cfbpso','fcpso','socpso']
+algorithms = ['cfbpso','fcpso','socpso']
 
 def tolerant_mean(arrs):
     lens = [len(i) for i in arrs]
@@ -36,8 +36,8 @@ def main():
 
     labels = [o.label for o in boundary_conditions]
 
-    csv_headers = ['Funkcja', 'Parametry', 'Warunek brzegowy', 'Najgorsze rozwiązanie',
-                   'Najlepsze rozwiązanie', 'Średnia', 'Odchylenie standardowe', 'Median']
+    csv_headers = ['Function', 'N', 'Boundary condition', 'Worst',
+                   'Best', 'Std. dev.']
 
     for algorithm in algorithms:               
         f = open('results/{0}_results.csv'.format(algorithm), 'w', encoding='utf-8')
@@ -52,12 +52,12 @@ def main():
 
                 fig = plt.figure()
                 ax = fig.add_subplot()
-                ax.set_xlabel('Liczba iteracji')
+                ax.set_xlabel('Number of iterations')
                 ax.set_ylabel(
-                    'Średnie rozwiązanie po {0} uruchomieniach'.format(runs))
+                    'Average gbest values of {0} runs'.format(runs))
                 ax.set_yscale('log')
-                ax.set_title('{0}, N={1}'.format(
-                    eval_function, dimension.dimensions))
+                ax.set_title('{0}, N={1}, x={2}'.format(
+                    eval_function, dimension.dimensions, eval_function.bounds_str()))
 
                 for boundary_condition in boundary_conditions:
                     print('\t {0}'.format(boundary_condition))
@@ -86,11 +86,11 @@ def main():
                     ax.plot(np.arange(len(y)), y, marker=boundary_condition.marker, lw=0.5, ms=5, mew=1, markevery=10,
                             color=boundary_condition.color, label=boundary_condition.label)
                     print('Results:')
-                    print('Max: {0} | Min: {1} | Mean: {2} | Stdev: {3} | Median: {4}'.format(
-                        max(y), min(y), mean(y), stdev(y), median(y)))
+                    print('Max: {0} | Min: {1} | Stdev: {2}'.format(
+                        max(y), min(y), stdev(y)))
 
                     writer.writerow([eval_function, dimension, boundary_condition, max(
-                        y), min(y), mean(y),  stdev(y), median(y)])
+                        y), min(y), stdev(y)])
 
                 ax.legend(labels, loc="upper right", fontsize=9)
                 plt.savefig('results/{0}_{1}_{2}.png'.format(swarm.__class__.__name__,
